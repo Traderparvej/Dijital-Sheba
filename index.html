@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>এনআইডি তথ্য পাঠক</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef2f0; --panel:#ffffff; --ink:#14201b; --muted:#5b6b64; --line:#cfd9d4;
+    --green:#0a5c3e; --green-d:#073f2a; --red:#c4302b; --ok:#0a7a4d; --warn:#9a6700;
+    --radius:10px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#0e1512; --panel:#16201b; --ink:#e6efea; --muted:#93a59c; --line:#2a3a33;
+      --green:#3fb584; --green-d:#2e9a6e; --red:#ff6b64; --ok:#4cd694; --warn:#e0b04a}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hind Siliguri",system-ui,sans-serif;font-size:16px;line-height:1.6}
+  header{border-bottom:4px solid var(--green);background:var(--panel)}
+  .wrap{max-width:980px;margin:0 auto;padding:0 20px}
+  header .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:18px;padding-bottom:14px}
+  h1{margin:0;font-size:1.5rem;font-weight:700;letter-spacing:-.01em}
+  header p{margin:0;color:var(--muted);font-size:.95rem}
+  .dot{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--red);margin-right:8px;vertical-align:baseline}
+  main{padding:24px 0 48px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+  h2{margin:0 0 14px;font-size:1.1rem;font-weight:600}
+  label{display:block;font-size:.9rem;font-weight:500;margin:12px 0 4px}
+  input[type=text],input[type=password]{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);font:inherit}
+  input:focus-visible,button:focus-visible,.drop:focus-visible,summary:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+  .drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:190px;border:2px dashed var(--line);border-radius:var(--radius);text-align:center;cursor:pointer;padding:14px;color:var(--muted);overflow:hidden}
+  .drop.over{border-color:var(--green);background:color-mix(in srgb,var(--green) 8%,transparent)}
+  .drop img{max-width:100%;max-height:230px;border-radius:6px}
+  .drop strong{color:var(--ink)}
+  button{font:inherit;font-weight:600;border:0;border-radius:8px;padding:11px 18px;cursor:pointer}
+  .primary{background:var(--green);color:#fff;width:100%;margin-top:16px}
+  .primary:hover{background:var(--green-d)}
+  .primary:disabled{opacity:.55;cursor:wait}
+  .ghost{background:transparent;color:var(--green);border:1px solid var(--line);padding:6px 12px;font-size:.85rem}
+  details{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+  summary{cursor:pointer;font-weight:500;color:var(--muted)}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .row:last-of-type{border-bottom:0}
+  .k{color:var(--muted);font-size:.9rem}
+  .v{font-weight:600;font-size:1.15rem;text-align:right;word-break:break-word}
+  .v.num{font-variant-numeric:tabular-nums;letter-spacing:.04em}
+  .msg{padding:10px 12px;border-radius:8px;font-size:.92rem;margin-top:12px}
+  .msg.err{background:color-mix(in srgb,var(--red) 12%,transparent);color:var(--red)}
+  .msg.ok{background:color-mix(in srgb,var(--ok) 12%,transparent);color:var(--ok)}
+  .msg.warn{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn)}
+  pre{white-space:pre-wrap;word-break:break-word;background:var(--bg);padding:12px;border-radius:8px;font-size:.85rem;max-height:220px;overflow:auto;margin:8px 0 0}
+  .empty{color:var(--muted);padding:30px 0;text-align:center}
+  .note{font-size:.82rem;color:var(--muted);margin-top:10px}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div>
+      <h1><span class="dot"></span>এনআইডি তথ্য পাঠক</h1>
+      <p>জাতীয় পরিচয়পত্রের ছবি থেকে নাম, জন্মতারিখ ও আইডি নম্বর বের করুন</p>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="grid">
+    <section class="panel" aria-labelledby="up">
+      <h2 id="up">১. কার্ডের ছবি দিন</h2>
+      <div class="drop" id="drop" tabindex="0" role="button" aria-label="ছবি বেছে নিন">
+        <div id="dropText"><strong>ছবি এখানে ফেলুন</strong><br>অথবা ক্লিক করে বেছে নিন<br><small>JPEG বা PNG, সর্বোচ্চ ৫ MB</small></div>
+      </div>
+      <input type="file" id="file" accept="image/jpeg,image/png" hidden>
+
+      <label for="name">নাম (মিলিয়ে দেখতে চাইলে)</label>
+      <input type="text" id="name" placeholder="যেমন: MD SAMIM MIA">
+      <label for="dob">জন্মতারিখ (মিলিয়ে দেখতে চাইলে)</label>
+      <input type="text" id="dob" placeholder="যেমন: 07 Jun 1972">
+
+      <details>
+        <summary>সার্ভার সেটিংস</summary>
+        <label for="api">API ঠিকানা</label>
+        <input type="text" id="api" value="http://localhost:5000">
+        <label for="token">API টোকেন (.env ফাইলের AUTH_TOKEN)</label>
+        <input type="password" id="token" autocomplete="off">
+        <p class="note">টোকেন শুধু এই ট্যাবের সেশনে থাকে।</p>
+      </details>
+
+      <button class="primary" id="go" disabled>তথ্য বের করুন</button>
+      <div id="status"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="rs" aria-live="polite">
+      <h2 id="rs">২. ফলাফল</h2>
+      <div id="result"><div class="empty">ছবি দিয়ে "তথ্য বের করুন" চাপলে ফলাফল এখানে দেখাবে।</div></div>
+    </section>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const drop = $('drop'), fileInput = $('file'), go = $('go');
+let file = null;
+
+try { $('token').value = sessionStorage.getItem('nid_token') || ''; $('api').value = sessionStorage.getItem('nid_api') || $('api').value; } catch(e){}
+
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function setFile(f){
+  if(!f) return;
+  if(!/^image\/(jpeg|png)$/.test(f.type)){ show('err','শুধু JPEG বা PNG ছবি দিন।'); return; }
+  if(f.size > 5*1024*1024){ show('err','ছবির সাইজ ৫ MB এর বেশি। ছোট করে আবার দিন।'); return; }
+  file = f; $('status').innerHTML = '';
+  const url = URL.createObjectURL(f);
+  drop.innerHTML = '<img alt="নির্বাচিত কার্ড" src="'+url+'">';
+  go.disabled = false;
+}
+function show(type, text){ $('status').innerHTML = '<div class="msg '+type+'">'+esc(text)+'</div>'; }
+
+drop.addEventListener('click', () => fileInput.click());
+drop.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); fileInput.click(); } });
+fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => setFile(e.dataTransfer.files[0]));
+
+go.addEventListener('click', async () => {
+  const token = $('token').value.trim(), api = $('api').value.trim().replace(/\/+$/,'');
+  if(!token){ $('status').innerHTML=''; show('err','"সার্ভার সেটিংস" খুলে API টোকেন দিন।'); document.querySelector('details').open = true; return; }
+  try { sessionStorage.setItem('nid_token', token); sessionStorage.setItem('nid_api', api); } catch(e){}
+
+  const fd = new FormData();
+  fd.append('image', file);
+  if($('name').value.trim()) fd.append('Name', $('name').value.trim());
+  if($('dob').value.trim()) fd.append('Date of Birth', $('dob').value.trim());
+
+  go.disabled = true; go.textContent = 'পড়া হচ্ছে…'; $('status').innerHTML = '';
+  try{
+    const res = await fetch(api + '/process_image', { method:'POST', headers:{'X-API-Token':token}, body:fd });
+    let data = null; try{ data = await res.json(); }catch(e){}
+    if(res.status === 429) throw new Error('অনেক বেশি অনুরোধ হয়েছে। এক মিনিট পরে আবার চেষ্টা করুন।');
+    if(res.status === 401 || res.status === 403) throw new Error('টোকেন ঠিক নয়। .env ফাইলের AUTH_TOKEN মিলিয়ে দেখুন।');
+    if(!res.ok) throw new Error((data && (data.error || data.message)) || 'সার্ভার থেকে ত্রুটি এসেছে (' + res.status + ')।');
+    render(data);
+  }catch(err){
+    const net = err instanceof TypeError;
+    show('err', net ? 'সার্ভারে পৌঁছানো যায়নি। সার্ভার চালু আছে কিনা, API ঠিকানা ঠিক কিনা এবং CORS চালু আছে কিনা দেখুন।' : err.message);
+  }finally{
+    go.disabled = false; go.textContent = 'তথ্য বের করুন';
+  }
+});
+
+function render(d){
+  const sim = d.similarity || {};
+  let simHtml = '';
+  if(sim.status && sim.status !== 'no_comparison_data_provided'){
+    const body = Object.entries(sim).map(([k,v]) => esc(k)+': '+esc(typeof v==='object'?JSON.stringify(v):v)).join('<br>');
+    simHtml = '<div class="msg warn"><strong>মিলিয়ে দেখার ফলাফল</strong><br>'+body+'</div>';
+  }
+  $('result').innerHTML =
+    '<div class="row"><span class="k">নাম</span><span class="v">'+esc(d['Name'] || '—')+'</span></div>'+
+    '<div class="row"><span class="k">জন্মতারিখ</span><span class="v">'+esc(d['Date of birth'] || '—')+'</span></div>'+
+    '<div class="row"><span class="k">আইডি নম্বর</span><span class="v num">'+esc(d['ID Number'] || '—')+'</span></div>'+
+    simHtml+
+    '<details><summary>পুরো পড়া লেখা দেখুন</summary><pre>'+esc(d['Full extracted text'] || '')+'</pre></details>'+
+    '<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">'+
+    '<button class="ghost" id="copy">JSON কপি করুন</button>'+
+    '<button class="ghost" id="clear">ফলাফল মুছুন</button></div>';
+  $('copy').onclick = async () => { try{ await navigator.clipboard.writeText(JSON.stringify(d,null,2)); $('copy').textContent='কপি হয়েছে'; }catch(e){ $('copy').textContent='কপি করা যায়নি'; } };
+  $('clear').onclick = () => { $('result').innerHTML = '<div class="empty">ফলাফল মুছে ফেলা হয়েছে।</div>'; };
+}
+</script>
+</body>
+</html>
